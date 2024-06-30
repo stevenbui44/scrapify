@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Playlist Created</title>
+</head>
+<body>
+    <h1>New Playlist Created: {{ playlist_name }}</h1>
+    <p>Your new playlist has been created with the following tracks:</p>
+    <ol>
+    {% for track in tracks %}
+        <li>{{ track[2] }} (Added: {{ track[1] }})</li>
+    {% endfor %}
+    </ol>
+    <a href="{{ url_for('index') }}">Back to playlist selection</a>
+</body>
+</html>

@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, render_template, request, redirect, url_for, session
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -11,7 +12,7 @@ load_dotenv()
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
-SCOPE = 'playlist-read-private'
+SCOPE = 'playlist-read-private playlist-modify-public user-library-read'
 
 # Set up Flask
 app = Flask(__name__)
@@ -45,15 +46,37 @@ def callback():
     session['token_info'] = token_info
     return redirect(url_for('index'))
 
-@app.route('/analyze/<playlist_id>')
-def analyze_playlist(playlist_id):
+@app.route('/create_playlist', methods=['POST'])
+def create_playlist():
     if not session.get('token_info'):
         return redirect(url_for('index'))
     
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
-    playlist = sp.playlist(playlist_id)
-    tracks = sp.playlist_items(playlist_id)
-    return render_template('analyze.html', playlist=playlist, tracks=tracks['items'])
+    
+    selected_playlists = request.form.getlist('playlists')
+    all_tracks = []
+
+    for playlist_id in selected_playlists:
+        tracks = sp.playlist_items(playlist_id)
+        all_tracks.extend([(track['track']['id'], track['added_at'], track['track']['name']) for track in tracks['items']])
+
+    # Sort tracks by added_at date and remove duplicates
+    sorted_tracks = sorted(all_tracks, key=lambda x: datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%SZ'))
+    unique_tracks = []
+    seen = set()
+    for track in sorted_tracks:
+        if track[0] not in seen:
+            unique_tracks.append(track)
+            seen.add(track[0])
+
+    # Create a new playlist
+    user_id = sp.me()['id']
+    new_playlist = sp.user_playlist_create(user_id, "Combined Playlist", public=True, description="Combined playlist sorted by add date")
+
+    # Add tracks to the new playlist
+    sp.playlist_add_items(new_playlist['id'], [track[0] for track in unique_tracks])
+
+    return render_template('playlist_created.html', playlist_name=new_playlist['name'], tracks=unique_tracks)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
