@@ -4,6 +4,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime
+import time
 
 # Load environment variables
 load_dotenv()
@@ -54,32 +55,50 @@ def create_playlist():
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
     
     selected_playlists = request.form.getlist('playlists')
+    include_duplicates = 'include_duplicates' in request.form
     all_tracks = []
 
     for playlist_id in selected_playlists:
-        tracks = sp.playlist_items(playlist_id)
-        all_tracks.extend([(track['track']['id'], track['added_at'], track['track']['name']) for track in tracks['items']])
+        playlist = sp.playlist(playlist_id)
+        tracks = []
+        results = sp.playlist_items(playlist_id)
+        tracks.extend(results['items'])
+        while results['next']:
+            results = sp.next(results)
+            tracks.extend(results['items'])
 
-    # Sort tracks by added_at date and remove duplicates
+        all_tracks.extend([(track['track']['id'], track['added_at'], track['track']['name'], playlist['name']) 
+                           for track in tracks if track['track']])
+
+    # Sort tracks by added_at date
     sorted_tracks = sorted(all_tracks, key=lambda x: datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%SZ'))
-    unique_tracks = []
-    seen = set()
-    for track in sorted_tracks:
-        if track[0] not in seen:
-            unique_tracks.append(track)
-            seen.add(track[0])
+
+    if not include_duplicates:
+        # Remove duplicates if not including them
+        unique_tracks = []
+        seen = set()
+        for track in sorted_tracks:
+            if track[0] not in seen:
+                unique_tracks.append(track)
+                seen.add(track[0])
+        sorted_tracks = unique_tracks
 
     # Create a new playlist
     user_id = sp.me()['id']
-    new_playlist = sp.user_playlist_create(user_id, "Combined Playlist", public=True, description="Combined playlist sorted by add date")
+    new_playlist = sp.user_playlist_create(user_id, "Combined Playlist", public=True, 
+                                           description="Combined playlist sorted by add date")
 
     # Add tracks to the new playlist in batches of 100
-    track_ids = [track[0] for track in unique_tracks]
+    track_ids = [track[0] for track in sorted_tracks]
     for i in range(0, len(track_ids), 100):
         batch = track_ids[i:i+100]
-        sp.playlist_add_items(new_playlist['id'], batch)
+        try:
+            sp.playlist_add_items(new_playlist['id'], batch)
+        except spotipy.exceptions.SpotifyException as e:
+            print(f"Error adding tracks {i} to {i+100}: {str(e)}")
+        time.sleep(1)  # Add a small delay to avoid rate limiting
 
-    return render_template('playlist_created.html', playlist_name=new_playlist['name'], tracks=unique_tracks)
+    return render_template('playlist_created.html', playlist_name=new_playlist['name'], tracks=sorted_tracks)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

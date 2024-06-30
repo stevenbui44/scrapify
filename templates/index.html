@@ -2,15 +2,29 @@
 <html>
 <head>
     <title>Spotify Playlist Combiner</title>
+    <script>
+        function toggleDuplicatesInfo() {
+            var info = document.getElementById("duplicatesInfo");
+            info.style.display = info.style.display === "none" ? "block" : "none";
+        }
+    </script>
 </head>
 <body>
     <h1>Select Playlists to Combine</h1>
-    <p>Choose the playlists you want to combine into a new playlist. The new playlist will contain all songs from the selected playlists, sorted by the date they were added, with no duplicates.</p>
+    <p>Choose the playlists you want to combine into a new playlist. The new playlist will contain all songs from the selected playlists, sorted by the date they were added.</p>
     <form action="{{ url_for('create_playlist') }}" method="post">
         {% for playlist in playlists %}
             <input type="checkbox" id="{{ playlist.id }}" name="playlists" value="{{ playlist.id }}">
             <label for="{{ playlist.id }}">{{ playlist.name }}</label><br>
         {% endfor %}
+        <br>
+        <input type="checkbox" id="include_duplicates" name="include_duplicates">
+        <label for="include_duplicates">Include duplicates?</label>
+        <button type="button" onclick="toggleDuplicatesInfo()">?</button>
+        <p id="duplicatesInfo" style="display: none;">
+            If checked, all instances of a song will be included in the new playlist. 
+            If unchecked, only the earliest instance of each song will be kept.
+        </p>
         <br>
         <input type="submit" value="Create Combined Playlist">
     </form>

@@ -8,7 +8,7 @@
     <p>Your new playlist has been created with the following tracks:</p>
     <ol>
     {% for track in tracks %}
-        <li>{{ track[2] }} (Added: {{ track[1] }})</li>
+        <li>{{ track[2] }} (Added: {{ track[1] }}, From playlist: {{ track[3] }})</li>
     {% endfor %}
     </ol>
     <a href="{{ url_for('index') }}">Back to playlist selection</a>
