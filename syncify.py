@@ -2,61 +2,58 @@ import os
 from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from flask import Flask, render_template, request, redirect, url_for, session
 
-# credentials (inside .env)
+# Load environment variables
+load_dotenv()
+
+# Set up your credentials
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
 SCOPE = 'playlist-read-private'
 
-# set up SpotifyOAuth
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,
-                                               client_secret=SPOTIPY_CLIENT_SECRET,
-                                               redirect_uri=SPOTIPY_REDIRECT_URI,
-                                               scope=SCOPE))
+# Set up Flask
+app = Flask(__name__)
+app.secret_key = os.urandom(24)  # For session management
 
-def get_user_playlists():
+# Set up SpotifyOAuth
+def create_spotify_oauth():
+    return SpotifyOAuth(
+        client_id=SPOTIPY_CLIENT_ID,
+        client_secret=SPOTIPY_CLIENT_SECRET,
+        redirect_uri=SPOTIPY_REDIRECT_URI,
+        scope=SCOPE
+    )
+
+@app.route('/')
+def index():
+    sp_oauth = create_spotify_oauth()
+    if not session.get('token_info'):
+        auth_url = sp_oauth.get_authorize_url()
+        return redirect(auth_url)
+    
+    sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
     playlists = sp.current_user_playlists()
-    return [(playlist['name'], playlist['id']) for playlist in playlists['items']]
+    return render_template('index.html', playlists=playlists['items'])
 
+@app.route('/callback')
+def callback():
+    sp_oauth = create_spotify_oauth()
+    code = request.args.get('code')
+    token_info = sp_oauth.get_access_token(code)
+    session['token_info'] = token_info
+    return redirect(url_for('index'))
+
+@app.route('/analyze/<playlist_id>')
 def analyze_playlist(playlist_id):
-    results = sp.playlist_items(playlist_id)
+    if not session.get('token_info'):
+        return redirect(url_for('index'))
     
-    print(f"\nAnalyzing playlist: {sp.playlist(playlist_id)['name']}\n")
-    
-    for idx, item in enumerate(results['items']):
-        track = item['track']
-        print(f"{idx + 1}. {track['name']} by {track['artists'][0]['name']}")
-        print(f"   Added at: {item['added_at']}")
-        print()
+    sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
+    playlist = sp.playlist(playlist_id)
+    tracks = sp.playlist_items(playlist_id)
+    return render_template('analyze.html', playlist=playlist, tracks=tracks['items'])
 
-    while results['next']:
-        results = sp.next(results)
-        for idx, item in enumerate(results['items'], start=len(results['items'])):
-            track = item['track']
-            print(f"{idx + 1}. {track['name']} by {track['artists'][0]['name']}")
-            print(f"   Added at: {item['added_at']}")
-            print()
-
-# Get user's playlists
-user_playlists = get_user_playlists()
-
-# Display playlists
-print("Your playlists:")
-for idx, (name, _) in enumerate(user_playlists):
-    print(f"{idx + 1}. {name}")
-
-# Let user choose a playlist
-while True:
-    choice = input("\nEnter the number of the playlist you want to analyze (or 'q' to quit): ")
-    if choice.lower() == 'q':
-        break
-    try:
-        playlist_index = int(choice) - 1
-        if 0 <= playlist_index < len(user_playlists):
-            _, playlist_id = user_playlists[playlist_index]
-            analyze_playlist(playlist_id)
-        else:
-            print("Invalid playlist number. Please try again.")
-    except ValueError:
-        print("Invalid input. Please enter a number or 'q' to quit.")
+if __name__ == '__main__':
+    app.run(debug=True, port=5001)

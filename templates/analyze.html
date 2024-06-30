@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analyze Playlist</title>
+</head>
+<body>
+    <h1>{{ playlist.name }}</h1>
+    <ul>
+    {% for item in tracks %}
+        <li>{{ item.track.name }} by {{ item.track.artists[0].name }} - Added at: {{ item.added_at }}</li>
+    {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}">Back to playlists</a>
+</body>
+</html>
