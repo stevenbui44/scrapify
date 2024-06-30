@@ -12,48 +12,21 @@
             color: #ffffff;
         }
 
+        .bottom-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
         .content {
             padding: 20px;
         }
         
-        /* .create-tab {
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background-color: #1DB954;
-            padding: 10px 60px;
-            border-radius: 0 0 0 20px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .create-tab:hover {
-            background-color: #1ed760;
-        }
-        .create-tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -20px;
-            width: 40px;
-            height: 40px;
-            background-color: #1DB954;
-            transform: rotate(45deg);
-            transform-origin: top right;
-            transition: background-color 0.3s ease;
-        }
-        .create-tab:hover::before {
-            background-color: #1ed760; 
-        }
-        .create-tab-text {
-            position: relative;
-            z-index: 1;
-            color: white;
-            font-weight: bold;
-        } */
-
         .create-playlist-button {
-            position: fixed;
+            position: static;
             bottom: 30px;
             right: 30px;
             background-color: #1DB954;
@@ -92,11 +65,14 @@
         .include-duplicates {
             display: flex;
             align-items: center;
-            margin-right: 20px;
+            margin-bottom: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 20px;
         }
 
         .include-duplicates label {
-            margin-left: 5px;
+            margin-left: 10px;
             color: white;
         }
 
@@ -225,13 +201,21 @@
                 {% endfor %}
             </div>
             
-            <div class="include-duplicates">
+            <!-- <div class="include-duplicates">
                 <input type="checkbox" id="include_duplicates" name="include_duplicates">
                 <label for="include_duplicates">Include duplicates</label>
-            </div>
+            </div> -->
         </form>
     </div>
 
-    <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button>
+    <!-- <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button> -->
+
+    <div class="bottom-container">
+        <div class="include-duplicates">
+            <input type="checkbox" id="include_duplicates" name="include_duplicates">
+            <label for="include_duplicates">Include duplicates</label>
+        </div>
+        <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button>
+    </div>
 </body>
 </html>
