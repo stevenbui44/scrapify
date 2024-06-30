@@ -73,8 +73,11 @@ def create_playlist():
     user_id = sp.me()['id']
     new_playlist = sp.user_playlist_create(user_id, "Combined Playlist", public=True, description="Combined playlist sorted by add date")
 
-    # Add tracks to the new playlist
-    sp.playlist_add_items(new_playlist['id'], [track[0] for track in unique_tracks])
+    # Add tracks to the new playlist in batches of 100
+    track_ids = [track[0] for track in unique_tracks]
+    for i in range(0, len(track_ids), 100):
+        batch = track_ids[i:i+100]
+        sp.playlist_add_items(new_playlist['id'], batch)
 
     return render_template('playlist_created.html', playlist_name=new_playlist['name'], tracks=unique_tracks)
 
