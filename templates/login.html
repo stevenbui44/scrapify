@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login to Spotify Playlist Combiner</title>
+    <style>
+        /* ... (keep your existing styles) ... */
+        .message {
+            background-color: #1DB954;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Spotify Playlist Combiner</h1>
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+        <a href="{{ auth_url }}" class="login-button">Login with Spotify</a>
+    </div>
+</body>
+</html>

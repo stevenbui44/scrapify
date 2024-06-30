@@ -5,6 +5,9 @@ from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime
 import time
+import requests
+from urllib.parse import urlencode
+from spotipy.cache_handler import CacheHandler
 
 # Load environment variables
 load_dotenv()
@@ -20,24 +23,43 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)  # For session management
 
 # Set up SpotifyOAuth
+class NoCache(CacheHandler):
+    def get_cached_token(self):
+        return None
+
+    def save_token_to_cache(self, token_info):
+        pass
+
 def create_spotify_oauth():
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
-        scope=SCOPE
+        scope=SCOPE,
+        cache_handler=NoCache()
     )
 
 @app.route('/')
 def index():
     sp_oauth = create_spotify_oauth()
+    
+    # Check if the user has just logged out
+    logout_message = None
+    if request.args.get('logout') == 'success':
+        logout_message = "You have been successfully logged out."
+    
     if not session.get('token_info'):
         auth_url = sp_oauth.get_authorize_url()
-        return redirect(auth_url)
+        return render_template('login.html', auth_url=auth_url, message=logout_message)
     
-    sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
-    playlists = sp.current_user_playlists()
-    return render_template('index.html', playlists=playlists['items'])
+    try:
+        sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
+        playlists = sp.current_user_playlists()
+        return render_template('index.html', playlists=playlists['items'])
+    except spotipy.exceptions.SpotifyException:
+        # Token might have expired
+        session.pop('token_info', None)
+        return redirect(url_for('index'))
 
 @app.route('/callback')
 def callback():
@@ -46,6 +68,14 @@ def callback():
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
     return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+    # Clear the session
+    session.clear()
+    
+    # Redirect to the index page with a logout success message
+    return redirect(url_for('index', logout='success'))
 
 @app.route('/create_playlist', methods=['POST'])
 def create_playlist():

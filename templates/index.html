@@ -10,9 +10,33 @@
             background-color: #121212;
             color: #ffffff;
         }
+        
         h1 {
             color: #1DB954;
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logout-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1DB954;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #1ed760;
+        }
+
         .playlist-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -75,9 +99,28 @@
             info.style.display = info.style.display === "none" ? "block" : "none";
         }
     </script>
+    <script>
+        document.querySelector('.logout-button').addEventListener('click', function(e) {
+            // Clear Spotify cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+        });
+    </script>
 </head>
 <body>
-    <h1>Select Playlists to Combine</h1>
+
+    <!-- <div style="text-align: right; margin-bottom: 20px;">
+        <a href="{{ url_for('logout') }}" style="color: #1DB954; text-decoration: none; font-weight: bold;">Logout</a>
+    </div> -->
+
+    <!-- <h1>Select Playlists to Combine</h1> -->
+
+    <div class="header">
+        <h1>Select Playlists to Combine</h1>
+        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    </div>
+
     <p>Choose the playlists you want to combine. Click on a playlist to select it.</p>
     
     <form id="playlist-form" action="{{ url_for('create_playlist') }}" method="post">
