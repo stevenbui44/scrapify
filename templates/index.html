@@ -10,6 +10,60 @@
             background-color: #121212;
             color: #ffffff;
         }
+        .create-tab {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #1DB954; /* Change to Spotify green */
+            padding: 10px 60px;
+            border-radius: 0 0 0 20px;
+            overflow: hidden;
+            cursor: pointer; /* Make it clear it's clickable */
+            transition: background-color 0.3s ease;
+        }
+        .create-tab:hover {
+            background-color: #1ed760; /* Lighter green on hover */
+        }
+        .create-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -20px;
+            width: 40px;
+            height: 40px;
+            background-color: #1DB954; /* Match the tab color */
+            transform: rotate(45deg);
+            transform-origin: top right;
+            transition: background-color 0.3s ease;
+        }
+        .create-tab:hover::before {
+            background-color: #1ed760; /* Match hover color */
+        }
+
+        .create-tab-text {
+            position: relative;
+            z-index: 1;
+            color: white;
+            font-weight: bold;
+        }
+        /* .create-tab .nav-button {
+            position: relative;
+            z-index: 1;
+        }
+        #create-button {
+            background-color: transparent;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        } */
+        .content {
+            padding: 20px;
+        }
+        h1 {
+            color: #1DB954;
+        }
         .header {
             display: flex;
             justify-content: space-between;
@@ -19,6 +73,10 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            height: 40px;
+        }
+        #include-duplicates {
+            margin-top: 20px;
         }
         .logo {
             color: #1DB954;
@@ -29,6 +87,7 @@
         .nav-buttons {
             display: flex;
             gap: 20px;
+            align-items: center;
         }
         .nav-button {
             color: #ffffff;
@@ -39,18 +98,6 @@
         }
         .nav-button:hover {
             background-color: #282828;
-        }
-        .logout-button {
-            background-color: #1DB954;
-        }
-        .logout-button:hover {
-            background-color: #1ed760;
-        }
-        .content {
-            padding: 20px;
-        }
-        h1 {
-            color: #1DB954;
         }
         .playlist-grid {
             display: grid;
@@ -80,22 +127,6 @@
             margin-top: 10px;
             font-size: 14px;
         }
-        #create-button {
-            background-color: #1DB954;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
-            border-radius: 20px;
-        }
-        #create-button:hover {
-            background-color: #1ed760;
-        }
-        #include-duplicates {
-            margin-top: 20px;
-        }
     </style>
     <script>
         function toggleSelection(element) {
@@ -114,11 +145,13 @@
             info.style.display = info.style.display === "none" ? "block" : "none";
         }
 
-        document.querySelector('.logout-button').addEventListener('click', function(e) {
-            localStorage.clear();
-            sessionStorage.clear();
-            document.cookie.split(";").forEach(function(c) { 
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelector('.logout-button').addEventListener('click', function(e) {
+                localStorage.clear();
+                sessionStorage.clear();
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
             });
         });
     </script>
@@ -127,9 +160,12 @@
     <div class="header">
         <a href="{{ url_for('index') }}" class="logo">Syncify</a>
         <div class="nav-buttons">
-            <a href="{{ url_for('privacy_policy') }}" class="nav-button">Privacy Policy</a>
-            <a href="{{ url_for('contact') }}" class="nav-button">Contact</a>
-            <a href="{{ url_for('logout') }}" class="nav-button logout-button">Logout</a>
+            <a href="#" class="nav-button">Privacy Policy</a>
+            <a href="#" class="nav-button">Contact</a>
+            <a href="{{ url_for('logout') }}" class="nav-button">Logout</a>
+        </div>
+        <div class="create-tab" onclick="createPlaylist()">
+            <span class="create-tab-text">Create Playlist</span>
         </div>
     </div>
 
@@ -157,8 +193,6 @@
                     If unchecked, only the earliest instance of each song will be kept.
                 </p>
             </div>
-
-            <button id="create-button" type="button" onclick="createPlaylist()">Create Combined Playlist</button>
         </form>
     </div>
 </body>
