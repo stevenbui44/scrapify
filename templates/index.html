@@ -24,6 +24,14 @@
         .content {
             padding: 20px;
         }
+
+        .copyright {
+            text-align: center;
+            margin-top: 120px;
+            padding-bottom: 20px;
+            color: #888;
+            font-size: 14px;
+        }
         
         .create-playlist-button {
             position: static;
@@ -44,9 +52,12 @@
             background-color: #1ed760;
         }
         
-        h1 {
-            color: #1DB954;
+        h2 {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -58,15 +69,12 @@
             z-index: 1000;
             height: 40px;
         }
-        /* #include-duplicates {
-            margin-top: 20px;
-        } */
         
         .include-duplicates {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: #121212;
             padding: 5px 10px;
             border-radius: 20px;
         }
@@ -77,10 +85,12 @@
         }
 
         .logo {
-            color: #1DB954;
-            font-size: 24px;
+            /* color: #1DB954; */
+            color: #ffffff;
+            font-size: 26px;
             font-weight: bold;
             text-decoration: none;
+            padding-left: 5px;
         }
         .nav-buttons {
             display: flex;
@@ -99,9 +109,10 @@
         }
         .playlist-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            /* grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); */
+            font-weight: bold;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
+            justify-content: center;
             margin-top: 20px;
             max-width: 1000px;
             margin-left: auto;
@@ -130,23 +141,23 @@
             font-size: 14px;
         }
 
-        @media (max-width: 1200px) {
-            .playlist-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
+        @media (max-width: 1040px) {
+    .playlist-grid {
+        max-width: 780px;
+    }
+}
 
-        @media (max-width: 900px) {
-            .playlist-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+@media (max-width: 820px) {
+    .playlist-grid {
+        max-width: 520px;
+    }
+}
 
-        @media (max-width: 600px) {
-            .playlist-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+@media (max-width: 560px) {
+    .playlist-grid {
+        max-width: 260px;
+    }
+}
 
     </style>
     <script>
@@ -200,15 +211,8 @@
                     </div>
                 {% endfor %}
             </div>
-            
-            <!-- <div class="include-duplicates">
-                <input type="checkbox" id="include_duplicates" name="include_duplicates">
-                <label for="include_duplicates">Include duplicates</label>
-            </div> -->
         </form>
     </div>
-
-    <!-- <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button> -->
 
     <div class="bottom-container">
         <div class="include-duplicates">
@@ -216,6 +220,10 @@
             <label for="include_duplicates">Include duplicates</label>
         </div>
         <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button>
+    </div>
+
+    <div class="copyright">
+        © Syncify 2024
     </div>
 </body>
 </html>

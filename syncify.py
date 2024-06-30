@@ -54,8 +54,23 @@ def index():
     
     try:
         sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
-        playlists = sp.current_user_playlists()
-        return render_template('index.html', playlists=playlists['items'])
+        
+        # Fetch all playlists
+        all_playlists = []
+        offset = 0
+        limit = 50  # Spotify API default limit
+
+        while True:
+            playlists = sp.current_user_playlists(limit=limit, offset=offset)
+            all_playlists.extend(playlists['items'])
+            
+            if len(playlists['items']) < limit:
+                # We've reached the end of the playlist list
+                break
+            
+            offset += limit
+
+        return render_template('index.html', playlists=all_playlists)
     except spotipy.exceptions.SpotifyException:
         # Token might have expired
         session.pop('token_info', None)
