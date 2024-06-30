@@ -69,6 +69,14 @@ def callback():
     session['token_info'] = token_info
     return redirect(url_for('index'))
 
+@app.route('/privacy')
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
 @app.route('/logout')
 def logout():
     # Clear the session

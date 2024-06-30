@@ -1,42 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Spotify Playlist Combiner</title>
+    <title>Syncify - Spotify Playlist Combiner</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #121212;
             color: #ffffff;
         }
-        
-        h1 {
-            color: #1DB954;
-        }
-
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .logout-button {
-            display: inline-block;
+            background-color: #000000;
             padding: 10px 20px;
-            background-color: #1DB954;
-            color: white;
-            text-decoration: none;
-            border-radius: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            color: #1DB954;
+            font-size: 24px;
             font-weight: bold;
+            text-decoration: none;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-button {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
             transition: background-color 0.3s ease;
         }
-
+        .nav-button:hover {
+            background-color: #282828;
+        }
+        .logout-button {
+            background-color: #1DB954;
+        }
         .logout-button:hover {
             background-color: #1ed760;
         }
-
+        .content {
+            padding: 20px;
+        }
+        h1 {
+            color: #1DB954;
+        }
         .playlist-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -98,10 +113,10 @@
             var info = document.getElementById("duplicatesInfo");
             info.style.display = info.style.display === "none" ? "block" : "none";
         }
-    </script>
-    <script>
+
         document.querySelector('.logout-button').addEventListener('click', function(e) {
-            // Clear Spotify cookies
+            localStorage.clear();
+            sessionStorage.clear();
             document.cookie.split(";").forEach(function(c) { 
                 document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
             });
@@ -109,42 +124,42 @@
     </script>
 </head>
 <body>
-
-    <!-- <div style="text-align: right; margin-bottom: 20px;">
-        <a href="{{ url_for('logout') }}" style="color: #1DB954; text-decoration: none; font-weight: bold;">Logout</a>
-    </div> -->
-
-    <!-- <h1>Select Playlists to Combine</h1> -->
-
     <div class="header">
-        <h1>Select Playlists to Combine</h1>
-        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+        <a href="{{ url_for('index') }}" class="logo">Syncify</a>
+        <div class="nav-buttons">
+            <a href="{{ url_for('privacy_policy') }}" class="nav-button">Privacy Policy</a>
+            <a href="{{ url_for('contact') }}" class="nav-button">Contact</a>
+            <a href="{{ url_for('logout') }}" class="nav-button logout-button">Logout</a>
+        </div>
     </div>
 
-    <p>Choose the playlists you want to combine. Click on a playlist to select it.</p>
-    
-    <form id="playlist-form" action="{{ url_for('create_playlist') }}" method="post">
-        <div class="playlist-grid">
-            {% for playlist in playlists %}
-                <div class="playlist-item" onclick="toggleSelection(this)">
-                    <img src="{{ playlist.images[0].url if playlist.images else 'default_playlist_image.jpg' }}" alt="{{ playlist.name }}">
-                    <div class="playlist-name">{{ playlist.name }}</div>
-                    <input type="checkbox" name="playlists" value="{{ playlist.id }}" style="display: none;">
-                </div>
-            {% endfor %}
-        </div>
+    <div class="content">
+        <h1>Select Playlists to Combine</h1>
+        <p>Choose the playlists you want to combine. Click on a playlist to select it.</p>
         
-        <div id="include-duplicates">
-            <input type="checkbox" id="include_duplicates" name="include_duplicates">
-            <label for="include_duplicates">Include duplicates?</label>
-            <button type="button" onclick="toggleDuplicatesInfo()">?</button>
-            <p id="duplicatesInfo" style="display: none;">
-                If checked, all instances of a song will be included in the new playlist. 
-                If unchecked, only the earliest instance of each song will be kept.
-            </p>
-        </div>
+        <form id="playlist-form" action="{{ url_for('create_playlist') }}" method="post">
+            <div class="playlist-grid">
+                {% for playlist in playlists %}
+                    <div class="playlist-item" onclick="toggleSelection(this)">
+                        <img src="{{ playlist.images[0].url if playlist.images else 'default_playlist_image.jpg' }}" alt="{{ playlist.name }}">
+                        <div class="playlist-name">{{ playlist.name }}</div>
+                        <input type="checkbox" name="playlists" value="{{ playlist.id }}" style="display: none;">
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div id="include-duplicates">
+                <input type="checkbox" id="include_duplicates" name="include_duplicates">
+                <label for="include_duplicates">Include duplicates?</label>
+                <button type="button" onclick="toggleDuplicatesInfo()">?</button>
+                <p id="duplicatesInfo" style="display: none;">
+                    If checked, all instances of a song will be included in the new playlist. 
+                    If unchecked, only the earliest instance of each song will be kept.
+                </p>
+            </div>
 
-        <button id="create-button" type="button" onclick="createPlaylist()">Create Combined Playlist</button>
-    </form>
+            <button id="create-button" type="button" onclick="createPlaylist()">Create Combined Playlist</button>
+        </form>
+    </div>
 </body>
 </html>
