@@ -45,9 +45,18 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            /* transition: background-color 0.3s ease; */
             box-shadow: 0 4px 12px rgba(29, 185, 84, 0.5);
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
         }
+
+        .create-playlist-button.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .create-playlist-button:hover {
             background-color: #1ed760;
         }
@@ -197,11 +206,15 @@
             element.classList.toggle('selected');
             var checkbox = element.querySelector('input[type="checkbox"]');
             checkbox.checked = !checkbox.checked;
+            updateCreatePlaylistButton();
         }
 
         function createPlaylist() {
-            var form = document.getElementById('playlist-form');
-            form.submit();
+            const createButton = document.querySelector('.create-playlist-button');
+            if (createButton.classList.contains('active')) {
+                var form = document.getElementById('playlist-form');
+                form.submit();
+            }
         }
 
         function toggleDuplicatesInfo() {
@@ -230,8 +243,16 @@
             }
         }
 
-        // Call this function after the page loads
-        window.addEventListener('load', addFillerItems);
+        function updateCreatePlaylistButton() {
+            const selectedPlaylists = document.querySelectorAll('.playlist-item.selected');
+            const createButton = document.querySelector('.create-playlist-button');
+            
+            if (selectedPlaylists.length > 0) {
+                createButton.classList.add('active');
+            } else {
+                createButton.classList.remove('active');
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', (event) => {
             document.querySelector('.logout-button').addEventListener('click', function(e) {
@@ -242,6 +263,13 @@
                 });
             });
         });
+
+        // Call this function after the page loads
+        window.addEventListener('load', function() {
+            addFillerItems();
+            updateCreatePlaylistButton();
+        });
+
     </script>
 </head>
 <body>
@@ -258,16 +286,6 @@
         <h2>Choose the playlists you want to combine into a single playlist!</h2>
         
         <form id="playlist-form" action="{{ url_for('create_playlist') }}" method="post">
-
-            <!-- <div class="playlist-grid">
-                {% for playlist in playlists %}
-                    <div class="playlist-item" onclick="toggleSelection(this)">
-                        <img src="{{ playlist.images[0].url if playlist.images else 'default_playlist_image.jpg' }}" alt="{{ playlist.name }}">
-                        <div class="playlist-name">{{ playlist.name }}</div>
-                        <input type="checkbox" name="playlists" value="{{ playlist.id }}" style="display: none;">
-                    </div>
-                {% endfor %}
-            </div> -->
             <div class="playlist-container">
                 <div class="playlist-grid">
                     {% for playlist in playlists %}
@@ -279,7 +297,6 @@
                     {% endfor %}
                 </div>
             </div>
-
         </form>
     </div>
 
@@ -288,6 +305,7 @@
             <input type="checkbox" id="include_duplicates" name="include_duplicates">
             <label for="include_duplicates">Include duplicate songs</label>
         </div>
+        <!-- <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button> -->
         <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button>
     </div>
 
