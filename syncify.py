@@ -110,9 +110,11 @@ def create_playlist():
     selected_playlists = request.form.getlist('playlists')
     include_duplicates = 'include_duplicates' in request.form
     all_tracks = []
+    selected_playlist_names = []
 
     for playlist_id in selected_playlists:
         playlist = sp.playlist(playlist_id)
+        selected_playlist_names.append(playlist['name'])
         tracks = []
         results = sp.playlist_items(playlist_id)
         tracks.extend(results['items'])
@@ -136,10 +138,28 @@ def create_playlist():
                 seen.add(track[0])
         sorted_tracks = unique_tracks
 
+    # Create the description
+    if len(selected_playlist_names) == 1:
+        description = f"Combined playlist from {selected_playlist_names[0]}, sorted by add date"
+    elif len(selected_playlist_names) == 2:
+        description = f"Combined playlist from {selected_playlist_names[0]} and {selected_playlist_names[1]}, sorted by add date"
+    else:
+        description = "Combined playlist from "
+        for i, name in enumerate(selected_playlist_names):
+            if i == len(selected_playlist_names) - 1:
+                description += f"and {name}, "
+            else:
+                description += f"{name}, "
+        description += "sorted by add date"
+
+    # Truncate the description if it's too long (Spotify has a 300 character limit)
+    if len(description) > 300:
+        description = description[:297] + "..."
+
     # Create a new playlist
     user_id = sp.me()['id']
     new_playlist = sp.user_playlist_create(user_id, "Combined Playlist", public=True, 
-                                           description="Combined playlist sorted by add date")
+                                           description=description)
 
     # Add tracks to the new playlist in batches of 100
     track_ids = [track[0] for track in sorted_tracks]
