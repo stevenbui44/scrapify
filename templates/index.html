@@ -103,6 +103,8 @@
             background-color: #121212;
             padding: 5px 10px;
             border-radius: 20px;
+            font-size: 14px;
+            margin-right: -8px;
         }
 
         .include-duplicates label {
@@ -143,7 +145,7 @@
         .playlist-grid {
             display: grid;
             font-weight: bold;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             justify-content: center;
             margin-top: 20px;
@@ -183,22 +185,22 @@
         }
 
         @media (max-width: 1040px) {
-    .playlist-grid {
-        max-width: 780px;
-    }
-}
+            .playlist-grid {
+                max-width: 780px;
+            }
+        }
 
-@media (max-width: 820px) {
-    .playlist-grid {
-        max-width: 520px;
-    }
-}
+        @media (max-width: 820px) {
+            .playlist-grid {
+                max-width: 520px;
+            }
+        }
 
-@media (max-width: 560px) {
-    .playlist-grid {
-        max-width: 260px;
-    }
-}
+        @media (max-width: 560px) {
+            .playlist-grid {
+                max-width: 260px;
+            }
+        }
 
     </style>
     <script>
@@ -305,7 +307,6 @@
             <input type="checkbox" id="include_duplicates" name="include_duplicates">
             <label for="include_duplicates">Include duplicate songs</label>
         </div>
-        <!-- <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button> -->
         <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button>
     </div>
 
