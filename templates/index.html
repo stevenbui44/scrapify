@@ -27,7 +27,7 @@
 
         .copyright {
             text-align: center;
-            margin-top: 120px;
+            margin-top: 200px;
             padding-bottom: 20px;
             color: #888;
             font-size: 14px;
@@ -50,6 +50,23 @@
         }
         .create-playlist-button:hover {
             background-color: #1ed760;
+        }
+
+        .filler-item .placeholder {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .filler-item .placeholder::after {
+            content: '+';
+            font-size: 50px;
+            color: rgba(255, 255, 255, 0.3);
         }
         
         h2 {
@@ -87,7 +104,7 @@
         .logo {
             /* color: #1DB954; */
             color: #ffffff;
-            font-size: 26px;
+            font-size: 25px;
             font-weight: bold;
             text-decoration: none;
             padding-left: 5px;
@@ -107,10 +124,17 @@
         .nav-button:hover {
             background-color: #282828;
         }
+
+        .playlist-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            margin-bottom: 120px;
+        }
+
         .playlist-grid {
             display: grid;
             font-weight: bold;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             justify-content: center;
             margin-top: 20px;
@@ -118,27 +142,35 @@
             margin-left: auto;
             margin-right: auto;
         }
-        .playlist-item {
-            cursor: pointer;
-            text-align: center;
-            transition: transform 0.3s ease;
+
+        .playlist-item, .filler-item {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
         .playlist-item:hover {
             transform: scale(1.05);
         }
-        .playlist-item img {
+
+        .playlist-item img, .filler-item .placeholder {
             width: 200px;
             height: 200px;
             object-fit: cover;
             border-radius: 10px;
         }
+
         .playlist-item.selected img {
             border: 3px solid #1DB954;
             box-shadow: 0 0 10px #1DB954;
         }
-        .playlist-name {
+     
+        .playlist-name, .filler-item .placeholder-name {
             margin-top: 10px;
             font-size: 14px;
+            text-align: center;
         }
 
         @media (max-width: 1040px) {
@@ -177,6 +209,30 @@
             info.style.display = info.style.display === "none" ? "block" : "none";
         }
 
+        function addFillerItems() {
+            const grid = document.querySelector('.playlist-grid');
+            const items = grid.querySelectorAll('.playlist-item');
+            const itemCount = items.length;
+            const remainder = itemCount % 4;
+            
+            if (remainder > 0) {
+                const fillerCount = 4 - remainder;
+                for (let i = 0; i < fillerCount; i++) {
+                    const filler = document.createElement('div');
+                    filler.className = 'filler-item';
+                    
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder';
+                    
+                    filler.appendChild(placeholder);
+                    grid.appendChild(filler);
+                }
+            }
+        }
+
+        // Call this function after the page loads
+        window.addEventListener('load', addFillerItems);
+
         document.addEventListener('DOMContentLoaded', (event) => {
             document.querySelector('.logout-button').addEventListener('click', function(e) {
                 localStorage.clear();
@@ -202,7 +258,8 @@
         <h2>Choose the playlists you want to combine into a single playlist!</h2>
         
         <form id="playlist-form" action="{{ url_for('create_playlist') }}" method="post">
-            <div class="playlist-grid">
+
+            <!-- <div class="playlist-grid">
                 {% for playlist in playlists %}
                     <div class="playlist-item" onclick="toggleSelection(this)">
                         <img src="{{ playlist.images[0].url if playlist.images else 'default_playlist_image.jpg' }}" alt="{{ playlist.name }}">
@@ -210,14 +267,26 @@
                         <input type="checkbox" name="playlists" value="{{ playlist.id }}" style="display: none;">
                     </div>
                 {% endfor %}
+            </div> -->
+            <div class="playlist-container">
+                <div class="playlist-grid">
+                    {% for playlist in playlists %}
+                        <div class="playlist-item" onclick="toggleSelection(this)">
+                            <img src="{{ playlist.images[0].url if playlist.images else 'default_playlist_image.jpg' }}" alt="{{ playlist.name }}">
+                            <div class="playlist-name">{{ playlist.name }}</div>
+                            <input type="checkbox" name="playlists" value="{{ playlist.id }}" style="display: none;">
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
+
         </form>
     </div>
 
     <div class="bottom-container">
         <div class="include-duplicates">
             <input type="checkbox" id="include_duplicates" name="include_duplicates">
-            <label for="include_duplicates">Include duplicates</label>
+            <label for="include_duplicates">Include duplicate songs</label>
         </div>
         <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button>
     </div>
