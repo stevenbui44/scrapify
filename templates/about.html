@@ -5,9 +5,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
     <style>
         .answer {
-            margin-top: 10px;
+            margin-top: 20px;
             margin-bottom: 20px;
             line-height: 1.6;
+            font-size:18px;
         }
 
         body {
@@ -20,7 +21,7 @@
 
         .content {
             padding: 20px;
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -80,25 +81,35 @@
         .question {
             font-weight: bold;
             font-size: 22px;
-            margin-top: 40px;
+            margin-top: 45px;
             color: #1DB954;
         }
     </style>
 </head>
 <body>
-    <div class="header">
+    <!-- <div class="header">
         <a href="{{ url_for('index') }}" class="logo">Syncify</a>
         <div class="nav-buttons">
             <a href="#" class="nav-button"><b>Privacy Policy</b></a>
             <a href="{{ url_for('about') }}" class="nav-button"><b>About</b></a>
             <a href="{{ url_for('logout') }}" class="nav-button logout-button"><b>Logout</b></a>
         </div>
+    </div> -->
+    <div class="header">
+        <a href="{{ url_for('index') }}" class="logo">Syncify</a>
+        <div class="nav-buttons">
+            <a href="#" class="nav-button"><b>Privacy Policy</b></a>
+            <a href="{{ url_for('about') }}" class="nav-button"><b>About</b></a>
+            {% if is_logged_in %}
+                <a href="{{ url_for('logout') }}" class="nav-button logout-button"><b>Logout</b></a>
+            {% endif %}
+        </div>
     </div>
 
     <div class="content">
         <h1>About Syncify</h1>
 
-        <div class="question">Why did you make this website?</div>
+        <div class="question">Why did you make Syncify?</div>
         <div class="answer">
             Syncify was created to solve a common problem among Spotify users: combining multiple playlists into one, sorted by the date each song was added. This tool simplifies playlist management and helps users rediscover songs they've added over time across different playlists.
         </div>

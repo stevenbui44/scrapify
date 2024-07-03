@@ -71,7 +71,9 @@ def privacy_policy():
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    # return render_template('about.html')
+    is_logged_in = 'token_info' in session
+    return render_template('about.html', is_logged_in=is_logged_in)
 
 
 @app.route('/logout')
