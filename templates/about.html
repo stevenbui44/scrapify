@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Syncify - About</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .answer {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        body {
+            font-family: 'Figtree', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 50px;
+            padding-bottom: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 60px;
+            font-size: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000000;
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 40px;
+        }
+
+        .logo {
+            color: #ffffff;
+            font-size: 25px;
+            font-weight: bold;
+            text-decoration: none;
+            padding-left: 5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-button {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #282828;
+        }
+
+        .question {
+            font-weight: bold;
+            font-size: 22px;
+            margin-top: 40px;
+            color: #1DB954;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('index') }}" class="logo">Syncify</a>
+        <div class="nav-buttons">
+            <a href="#" class="nav-button"><b>Privacy Policy</b></a>
+            <a href="{{ url_for('about') }}" class="nav-button"><b>About</b></a>
+            <a href="{{ url_for('logout') }}" class="nav-button logout-button"><b>Logout</b></a>
+        </div>
+    </div>
+
+    <div class="content">
+        <h1>About Syncify</h1>
+
+        <div class="question">Why did you make this website?</div>
+        <div class="answer">
+            Syncify was created to solve a common problem among Spotify users: combining multiple playlists into one, sorted by the date each song was added. This tool simplifies playlist management and helps users rediscover songs they've added over time across different playlists.
+        </div>
+
+        <div class="question">Is this project on GitHub?</div>
+        <div class="answer">
+            Yes! The source code for Syncify is available on GitHub. You can find it at [insert GitHub link here]. We welcome contributions and feedback from the community.
+        </div>
+
+        <div class="question">How is my data being used?</div>
+        <div class="answer">
+            Syncify only accesses the Spotify data necessary to combine your playlists. We don't store any of your personal information or playlist data on our servers. The app uses Spotify's official API and adheres to their data usage policies. Your privacy and data security are our top priorities.
+        </div>
+
+        <div class="question">What tech stack was used?</div>
+        <div class="answer">
+            Syncify is built using Python with the Flask web framework for the backend. The frontend is created with HTML, CSS, and JavaScript. We use the Spotipy library to interact with the Spotify API. The application is hosted on [insert hosting platform], ensuring reliable and scalable performance.
+        </div>
+    </div>
+
+    <div class="copyright">
+        © Syncify 2024
+    </div>
+</body>
+</html>
