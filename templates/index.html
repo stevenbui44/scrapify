@@ -65,13 +65,24 @@
         .login-button:hover {
             background-color: #1ed760;
         }
+        
+        .logout-message-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px; /* Space between header and message */
+        }
 
-        .message {
-            background-color: #1DB954;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        .logout-message {
+            background-color: rgba(67, 65, 65, 0.3); /* Faded, transparent grey */
+            color: rgba(212, 209, 209, 0.8); /* Dim, slightly transparent text */
+            text-align: center;
+            padding: 12px 24px;
+            border-radius: 4px;
+            display: inline-block;
+            max-width: 80%;
+            /* border: 1px solid rgba(200, 200, 200, 0.3); */
+            font-weight: 400; /* Normal font weight */
+            backdrop-filter: blur(5px); /* Optional: adds a slight blur effect */
         }
 
         .nav-buttons {
@@ -102,11 +113,14 @@
         </div>
     </div>    
 
+    {% if message %}
+        <div class="logout-message-container">
+            <div class="logout-message">{{ message }}</div>
+        </div>
+    {% endif %}
+
     <div class="login-container">
         <h1>Welcome to Syncify</h1>
-        {% if message %}
-            <div class="message">{{ message }}</div>
-        {% endif %}
         <a href="{{ auth_url }}" class="login-button">Login with Spotify</a>
     </div>
 
