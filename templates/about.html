@@ -11,6 +11,19 @@
             font-size:18px;
         }
 
+        .answer a {
+            color: #1DB954;
+            text-decoration: none;
+        }
+
+        .answer a:hover {
+            text-decoration: underline;
+        }
+
+        .answer a:visited {
+            color: #1DB954;
+        }
+
         body {
             font-family: 'Figtree', serif;
             margin: 0;
@@ -27,7 +40,7 @@
 
         .copyright {
             text-align: center;
-            margin-top: 50px;
+            margin-top: 120px;
             padding-bottom: 20px;
             color: #888;
             font-size: 14px;
@@ -35,8 +48,8 @@
 
         h1 {
             text-align: center;
-            margin-top: 40px;
-            margin-bottom: 60px;
+            margin-top: 30px;
+            margin-bottom: 50px;
             font-size: 40px;
         }
 
@@ -87,14 +100,6 @@
     </style>
 </head>
 <body>
-    <!-- <div class="header">
-        <a href="{{ url_for('index') }}" class="logo">Syncify</a>
-        <div class="nav-buttons">
-            <a href="#" class="nav-button"><b>Privacy Policy</b></a>
-            <a href="{{ url_for('about') }}" class="nav-button"><b>About</b></a>
-            <a href="{{ url_for('logout') }}" class="nav-button logout-button"><b>Logout</b></a>
-        </div>
-    </div> -->
     <div class="header">
         <a href="{{ url_for('index') }}" class="logo">Syncify</a>
         <div class="nav-buttons">
@@ -109,24 +114,41 @@
     <div class="content">
         <h1>About Syncify</h1>
 
-        <div class="question">Why did you make Syncify?</div>
+        <div class="question">Why was Syncify made?</div>
         <div class="answer">
-            Syncify was created to solve a common problem among Spotify users: combining multiple playlists into one, sorted by the date each song was added. This tool simplifies playlist management and helps users rediscover songs they've added over time across different playlists.
+            Syncify was created to solve a common problem among Spotify users: combining multiple playlists into one, sorted by the date each song was added. This tool simplifies playlist management and helps users rediscover songs they've added over time across different playlists, as well as to keep all of your favorite songs in one place.
         </div>
 
         <div class="question">Is this project on GitHub?</div>
         <div class="answer">
-            Yes! The source code for Syncify is available on GitHub. You can find it at [insert GitHub link here]. We welcome contributions and feedback from the community.
+            Yes! The source code for Syncify is available on GitHub. You can find it <a href="https://github.com/stevenbui44/syncify" target="_blank" rel="noopener noreferrer">here</a>. We welcome contributions and feedback from the community.
         </div>
 
         <div class="question">How is my data being used?</div>
         <div class="answer">
-            Syncify only accesses the Spotify data necessary to combine your playlists. We don't store any of your personal information or playlist data on our servers. The app uses Spotify's official API and adheres to their data usage policies. Your privacy and data security are our top priorities.
+            Syncify only accesses the Spotify data necessary to combine your playlists. We don't store any of your personal information or playlist data on our servers. The app uses Spotify's official API and adheres to their data usage policies.
+            </br></br>
+            You can read more about how your data is being used in our privacy policy.
         </div>
 
         <div class="question">What tech stack was used?</div>
         <div class="answer">
-            Syncify is built using Python with the Flask web framework for the backend. The frontend is created with HTML, CSS, and JavaScript. We use the Spotipy library to interact with the Spotify API. The application is hosted on [insert hosting platform], ensuring reliable and scalable performance.
+            Syncify is built using Python with the Flask web framework for the backend. The frontend is created with HTML, CSS, and JavaScript. We also use the Spotipy library to interact with the Spotify API.
+        </div>
+
+        <div class="question">Why might the system time not reflect my local time?</div>
+        <div class="answer">
+            The system time displayed in Syncify reflects the time zone of our servers, which use Coordinated Universal Time (UTC). This ensures consistency across different geographical locations. Your local time may differ from the displayed system time depending on your time zone. The time shown represents when the song was added to the playlist according to Spotify's servers, not necessarily the exact time in your location when you added the song.
+        </div>
+
+        <div class="question">How can I contact the creator with feedback or questions?</div>
+        <div class="answer">
+            We appreciate your feedback and questions! You can reach out to the creator by opening an issue on our <a href="https://github.com/stevenbui44/syncify/issues" target="_blank" rel="noopener noreferrer">GitHub Issues page</a> or by sending an email to stevenbui44@gmail.com. All feedback will be addressed within 48 hours.
+        </div>
+
+        <div class="question">Is Syncify affiliated with Spotify?</div>
+        <div class="answer">
+            No, Syncify is not affiliated with or endorsed by Spotify. Syncify is an independent project that uses Spotify's public API to provide this service to users.
         </div>
     </div>
 
