@@ -4,6 +4,23 @@
     <title>Syncify - Playlist Created</title>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        .back-button {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            background-color: #1DB954;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background-color: #1ed760;
+        }
+
         body {
             font-family: 'Figtree', serif;
             margin: 0;
@@ -24,6 +41,12 @@
             padding-bottom: 20px;
             color: #888;
             font-size: 14px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
         }
 
         .header {
@@ -64,10 +87,9 @@
             background-color: #282828;
         }
 
-        h1, h2 {
-            text-align: center;
-            margin-top: 30px;
-            margin-bottom: 30px;
+        .song-number {
+            color: #888;
+            margin-right: 10px;
         }
 
         .track-table {
@@ -76,11 +98,13 @@
             margin-top: 20px;
         }
 
+        .track-table th {
+            background-color: #121212; /* Changed from #1DB954 to match body background */
+            color: #1DB954; /* Changed text color to Spotify green for contrast */
+        }
+
         .track-table th, .track-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #333;
-            width: 20%; /* Add this line */
+            padding: 12px 20px; /* Increased padding for better spacing */
         }
 
         .track-table th {
@@ -90,23 +114,6 @@
 
         .track-table tr:hover {
             background-color: #1e1e1e;
-        }
-
-        .back-button {
-            display: block;
-            width: 200px;
-            margin: 30px auto;
-            background-color: #1DB954;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-        }
-
-        .back-button:hover {
-            background-color: #1ed760;
         }
     </style>
     <script>
@@ -135,10 +142,33 @@
         <h1>New Playlist Created: {{ playlist_name }}</h1>
         <h2>Your new playlist has been created with the following tracks:</h2>
 
+        <style>
+            /* Remove this line */
+            /* .track-table th, .track-table td { */
+            /*     border-bottom: 1px solid #333; */
+            /* } */
+        
+            .track-table th {
+                background-color: #121212; /* Changed from #1DB954 to match body background */
+                color: #1DB954; /* Changed text color to Spotify green for contrast */
+            }
+        
+            .track-table th, .track-table td {
+                padding: 12px 20px; /* Increased padding for better spacing */
+            }
+        
+            /* Add this new style for song number */
+            .song-number {
+                color: #888;
+                margin-right: 10px;
+            }
+        </style>
+        
+        <!-- In the table structure -->
         <table class="track-table">
             <thead>
                 <tr>
-                    <th>Song Name</th>
+                    <th>Song</th>
                     <th>Date Added</th>
                     <th>Time Added</th>
                     <th>Source Playlist</th>
@@ -147,7 +177,10 @@
             <tbody>
             {% for track in tracks %}
                 <tr>
-                    <td>{{ track[2] }}</td>
+                    <td>
+                        <span class="song-number">{{ loop.index }}.</span>
+                        {{ track[2] }}
+                    </td>
                     <td>{{ track[1].split('T')[0] }}</td>
                     <td>{{ track[1].split('T')[1][:5] }}</td>
                     <td>{{ track[3] }}</td>
