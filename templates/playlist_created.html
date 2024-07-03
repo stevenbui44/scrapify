@@ -43,6 +43,17 @@
             font-size: 14px;
         }
 
+        .date-column, .time-column, .source-column {
+            width: 130px; /* Set a fixed width for these columns */
+        }
+
+        .footnote {
+            text-align: center;
+            color: #939393;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
         h1, h2 {
             text-align: center;
             margin-top: 30px;
@@ -99,10 +110,8 @@
             margin-bottom: 60px; /* Add space below the table */
         }
 
-        .track-table th {
-            background-color: #121212; /* Changed from #1DB954 to match body background */
-            /* color: #1DB954; */
-            color: #ffffff;
+        .track-table td.light-grey {
+            color: #939393; /* Light grey color */
         }
 
         .track-table th, .track-table td {
@@ -110,14 +119,10 @@
             text-align: left; /* Align headers to the left */
         }
 
-        /* .track-table th {
-            background-color: #1DB954;
-            color: white;
-        } */
         .track-table th {
             background-color: #121212; /* Same as body background */
             color: #ffffff;
-            border-bottom: 2px solid #333; /* Add a line under the header row */
+            border-bottom: 1px solid #333; /* Add a line under the header row */
         }
 
         .track-table tbody tr:first-child td {
@@ -158,9 +163,9 @@
             <thead>
                 <tr>
                     <th>Song</th>
-                    <th>Date Added</th>
-                    <th>System Time</th>
-                    <th>Source Playlist</th>
+                    <th class="date-column">Date Added</th>
+                    <th class="time-column">System Time*</th>
+                    <th class="source-column">Source Playlist</th>
                 </tr>
             </thead>
             <tbody>
@@ -170,7 +175,7 @@
                         <span class="song-number">{{ loop.index }}.</span>
                         {{ track[2] }}
                     </td>
-                    <td>
+                    <td class="light-grey date-column">
                         {% set date_parts = track[1].split('T')[0].split('-') %}
                         {% set year = date_parts[0] %}
                         {% set month = date_parts[1]|int %}
@@ -178,7 +183,7 @@
                         {% set months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] %}
                         {{ months[month - 1] }} {{ day }}, {{ year }}
                     </td>
-                    <td>
+                    <td class="light-grey time-column">
                         {% set time = track[1].split('T')[1][:5] %}
                         {% set hour = time.split(':')[0]|int %}
                         {% set minute = time.split(':')[1] %}
@@ -192,13 +197,14 @@
                             {{ hour - 12 }}:{{ minute }} PM
                         {% endif %}
                     </td>
-                    <td>{{ track[3] }}</td>
+                    <td class="light-grey source-column">{{ track[3] }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
 
         <a href="{{ url_for('index') }}" class="back-button">Back to playlist selection</a>
+        <p class="footnote">* System time may not reflect the local time added due to the way Spotify saves data :(</p>
     </div>
 
     <div class="copyright">
