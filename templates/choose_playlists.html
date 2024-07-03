@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Syncify - Spotify Playlist Combiner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Figtree', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .bottom-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 200px;
+            padding-bottom: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .create-playlist-button {
+            position: static;
+            bottom: 30px;
+            right: 30px;
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            /* transition: background-color 0.3s ease; */
+            box-shadow: 0 4px 12px rgba(29, 185, 84, 0.5);
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        .create-playlist-button.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .create-playlist-button:hover {
+            background-color: #1ed760;
+        }
+
+        .filler-item .placeholder {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .filler-item .placeholder::after {
+            content: '\266B';
+            font-size: 50px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+        
+        h2 {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000000;
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 40px;
+        }
+        
+        .include-duplicates {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            background-color: #121212;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-right: -8px;
+        }
+
+        .include-duplicates label {
+            margin-left: 10px;
+            color: white;
+        }
+
+        .logo {
+            /* color: #1DB954; */
+            color: #ffffff;
+            font-size: 25px;
+            font-weight: bold;
+            text-decoration: none;
+            padding-left: 5px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-button {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .nav-button:hover {
+            background-color: #282828;
+        }
+
+        .playlist-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            /* margin-bottom: 120px; */
+        }
+
+        .playlist-grid {
+            display: grid;
+            font-weight: bold;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .playlist-item, .filler-item {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .playlist-item:hover {
+            transform: scale(1.05);
+        }
+
+        .playlist-item img, .filler-item .placeholder {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .playlist-item.selected img {
+            border: 3px solid #1DB954;
+            box-shadow: 0 0 10px #1DB954;
+        }
+     
+        .playlist-name, .filler-item .placeholder-name {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @media (max-width: 1040px) {
+            .playlist-grid {
+                max-width: 780px;
+            }
+        }
+
+        @media (max-width: 820px) {
+            .playlist-grid {
+                max-width: 520px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .playlist-grid {
+                max-width: 260px;
+            }
+        }
+
+    </style>
+    <script>
+        function toggleSelection(element) {
+            element.classList.toggle('selected');
+            var checkbox = element.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            updateCreatePlaylistButton();
+        }
+
+        function createPlaylist() {
+            const createButton = document.querySelector('.create-playlist-button');
+            if (createButton.classList.contains('active')) {
+                var form = document.getElementById('playlist-form');
+                form.submit();
+            }
+        }
+
+        function toggleDuplicatesInfo() {
+            var info = document.getElementById("duplicatesInfo");
+            info.style.display = info.style.display === "none" ? "block" : "none";
+        }
+
+        function addFillerItems() {
+            const grid = document.querySelector('.playlist-grid');
+            const items = grid.querySelectorAll('.playlist-item');
+            const itemCount = items.length;
+            const remainder = itemCount % 4;
+            
+            if (remainder > 0) {
+                const fillerCount = 4 - remainder;
+                for (let i = 0; i < fillerCount; i++) {
+                    const filler = document.createElement('div');
+                    filler.className = 'filler-item';
+                    
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder';
+                    
+                    filler.appendChild(placeholder);
+                    grid.appendChild(filler);
+                }
+            }
+        }
+
+        function updateCreatePlaylistButton() {
+            const selectedPlaylists = document.querySelectorAll('.playlist-item.selected');
+            const createButton = document.querySelector('.create-playlist-button');
+            
+            if (selectedPlaylists.length > 0) {
+                createButton.classList.add('active');
+            } else {
+                createButton.classList.remove('active');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelector('.logout-button').addEventListener('click', function(e) {
+                localStorage.clear();
+                sessionStorage.clear();
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+            });
+        });
+
+        // Call this function after the page loads
+        window.addEventListener('load', function() {
+            addFillerItems();
+            updateCreatePlaylistButton();
+        });
+
+    </script>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('index') }}" class="logo">Syncify</a>
+        <div class="nav-buttons">
+            <a href="#" class="nav-button"><b>Privacy Policy</b></a>
+            <a href="#" class="nav-button"><b>Contact</b></a>
+            <a href="{{ url_for('logout') }}" class="nav-button logout-button"><b>Logout</b></a>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Choose the playlists you want to combine into a single playlist!</h2>
+        
+        <form id="playlist-form" action="{{ url_for('create_playlist') }}" method="post">
+            <div class="playlist-container">
+                <div class="playlist-grid">
+                    {% for playlist in playlists %}
+                        <div class="playlist-item" onclick="toggleSelection(this)">
+                            <img src="{{ playlist.images[0].url if playlist.images else 'default_playlist_image.jpg' }}" alt="{{ playlist.name }}">
+                            <div class="playlist-name">{{ playlist.name }}</div>
+                            <input type="checkbox" name="playlists" value="{{ playlist.id }}" style="display: none;">
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="bottom-container">
+        <div class="include-duplicates">
+            <input type="checkbox" id="include_duplicates" name="include_duplicates">
+            <label for="include_duplicates">Include duplicate songs</label>
+        </div>
+        <button class="create-playlist-button" onclick="createPlaylist()">Create Playlist</button>
+    </div>
+
+    <div class="copyright">
+        © Syncify 2024
+    </div>
+</body>
+</html>

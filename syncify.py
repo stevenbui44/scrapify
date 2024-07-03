@@ -50,7 +50,43 @@ def index():
     
     if not session.get('token_info'):
         auth_url = sp_oauth.get_authorize_url()
-        return render_template('login.html', auth_url=auth_url, message=logout_message)
+        return render_template('index.html', auth_url=auth_url, message=logout_message)
+    
+    return redirect(url_for('choose_playlists'))
+    
+
+@app.route('/callback')
+def callback():
+    sp_oauth = create_spotify_oauth()
+    code = request.args.get('code')
+    token_info = sp_oauth.get_access_token(code)
+    session['token_info'] = token_info
+    return redirect(url_for('choose_playlists'))
+
+
+@app.route('/privacy')
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+
+@app.route('/logout')
+def logout():
+    # Clear the session
+    session.clear()
+    
+    # Redirect to the index page with a logout success message
+    return redirect(url_for('index', logout='success'))
+
+
+@app.route('/choose-playlists')
+def choose_playlists():
+    if not session.get('token_info'):
+        return redirect(url_for('index'))
     
     try:
         sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
@@ -70,37 +106,14 @@ def index():
             
             offset += limit
 
-        return render_template('index.html', playlists=all_playlists)
+        return render_template('choose_playlists.html', playlists=all_playlists)
     except spotipy.exceptions.SpotifyException:
         # Token might have expired
         session.pop('token_info', None)
         return redirect(url_for('index'))
-
-@app.route('/callback')
-def callback():
-    sp_oauth = create_spotify_oauth()
-    code = request.args.get('code')
-    token_info = sp_oauth.get_access_token(code)
-    session['token_info'] = token_info
-    return redirect(url_for('index'))
-
-@app.route('/privacy')
-def privacy_policy():
-    return render_template('privacy_policy.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
-@app.route('/logout')
-def logout():
-    # Clear the session
-    session.clear()
     
-    # Redirect to the index page with a logout success message
-    return redirect(url_for('index', logout='success'))
 
-@app.route('/create_playlist', methods=['POST'])
+@app.route('/playlist-created', methods=['POST'])
 def create_playlist():
     if not session.get('token_info'):
         return redirect(url_for('index'))
@@ -172,6 +185,7 @@ def create_playlist():
         time.sleep(1)  # Add a small delay to avoid rate limiting
 
     return render_template('playlist_created.html', playlist_name=new_playlist['name'], tracks=sorted_tracks)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
