@@ -37,7 +37,7 @@
 
         .copyright {
             text-align: center;
-            margin-top: 200px;
+            margin-top: 120px;
             padding-bottom: 20px;
             color: #888;
             font-size: 14px;
@@ -95,21 +95,33 @@
         .track-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 60px; /* Add space above the table */
+            margin-bottom: 60px; /* Add space below the table */
         }
 
         .track-table th {
             background-color: #121212; /* Changed from #1DB954 to match body background */
-            color: #1DB954; /* Changed text color to Spotify green for contrast */
+            /* color: #1DB954; */
+            color: #ffffff;
         }
 
         .track-table th, .track-table td {
-            padding: 12px 20px; /* Increased padding for better spacing */
+            padding: 12px 20px;
+            text-align: left; /* Align headers to the left */
         }
 
-        .track-table th {
+        /* .track-table th {
             background-color: #1DB954;
             color: white;
+        } */
+        .track-table th {
+            background-color: #121212; /* Same as body background */
+            color: #ffffff;
+            border-bottom: 2px solid #333; /* Add a line under the header row */
+        }
+
+        .track-table tbody tr:first-child td {
+            padding-top: 20px; /* Add extra padding to the first row of the body */
         }
 
         .track-table tr:hover {
@@ -142,35 +154,12 @@
         <h1>New Playlist Created: {{ playlist_name }}</h1>
         <h2>Your new playlist has been created with the following tracks:</h2>
 
-        <style>
-            /* Remove this line */
-            /* .track-table th, .track-table td { */
-            /*     border-bottom: 1px solid #333; */
-            /* } */
-        
-            .track-table th {
-                background-color: #121212; /* Changed from #1DB954 to match body background */
-                color: #1DB954; /* Changed text color to Spotify green for contrast */
-            }
-        
-            .track-table th, .track-table td {
-                padding: 12px 20px; /* Increased padding for better spacing */
-            }
-        
-            /* Add this new style for song number */
-            .song-number {
-                color: #888;
-                margin-right: 10px;
-            }
-        </style>
-        
-        <!-- In the table structure -->
         <table class="track-table">
             <thead>
                 <tr>
                     <th>Song</th>
                     <th>Date Added</th>
-                    <th>Time Added</th>
+                    <th>System Time</th>
                     <th>Source Playlist</th>
                 </tr>
             </thead>
@@ -181,8 +170,28 @@
                         <span class="song-number">{{ loop.index }}.</span>
                         {{ track[2] }}
                     </td>
-                    <td>{{ track[1].split('T')[0] }}</td>
-                    <td>{{ track[1].split('T')[1][:5] }}</td>
+                    <td>
+                        {% set date_parts = track[1].split('T')[0].split('-') %}
+                        {% set year = date_parts[0] %}
+                        {% set month = date_parts[1]|int %}
+                        {% set day = date_parts[2]|int %}
+                        {% set months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] %}
+                        {{ months[month - 1] }} {{ day }}, {{ year }}
+                    </td>
+                    <td>
+                        {% set time = track[1].split('T')[1][:5] %}
+                        {% set hour = time.split(':')[0]|int %}
+                        {% set minute = time.split(':')[1] %}
+                        {% if hour == 0 %}
+                            12:{{ minute }} AM
+                        {% elif hour < 12 %}
+                            {{ hour }}:{{ minute }} AM
+                        {% elif hour == 12 %}
+                            12:{{ minute }} PM
+                        {% else %}
+                            {{ hour - 12 }}:{{ minute }} PM
+                        {% endif %}
+                    </td>
                     <td>{{ track[3] }}</td>
                 </tr>
             {% endfor %}
