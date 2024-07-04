@@ -258,10 +258,22 @@
 
         document.addEventListener('DOMContentLoaded', (event) => {
             document.querySelector('.logout-button').addEventListener('click', function(e) {
+                // Clear local storage
                 localStorage.clear();
+                
+                // Clear session storage
                 sessionStorage.clear();
+                
+                // Clear cookies
                 document.cookie.split(";").forEach(function(c) { 
                     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                // Clear Spotify-specific cookies
+                document.cookie.split(";").forEach(function(c) {
+                    if (c.trim().startsWith('sp_')) {
+                        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/;domain=.spotify.com");
+                    }
                 });
             });
         });

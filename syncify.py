@@ -2,12 +2,18 @@ import os
 from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from flask import Flask, render_template, request, redirect, url_for, session
+# from flask import Flask, render_template, request, redirect, url_for, session, make_response, current_app
+from flask import *
 from datetime import datetime
 import time
 import requests
 from urllib.parse import urlencode
 from spotipy.cache_handler import CacheHandler
+import secrets
+from urllib.parse import quote
+from threading import Timer
+from spotipy.exceptions import SpotifyException
+
 
 # Load environment variables
 load_dotenv()
@@ -36,30 +42,43 @@ def create_spotify_oauth():
         client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
         scope=SCOPE,
-        cache_handler=NoCache()
+        cache_handler=NoCache(),
+        show_dialog=True
     )
+
 
 @app.route('/')
 def index():
     sp_oauth = create_spotify_oauth()
     
+    # Check if we're in the process of logging out
+    if request.cookies.get('logging_out') == 'true':
+        return redirect(url_for('post_logout'))
+    
     # Check if the user has just logged out
     logout_message = None
     if request.args.get('logout') == 'success':
-        logout_message = "You have been successfully logged out."
+        logout_message = "You have been successfully logged out of Spotify."
     
-    if not session.get('token_info'):
-        auth_url = sp_oauth.get_authorize_url()
-        return render_template('index.html', auth_url=auth_url, message=logout_message)
-    
-    return redirect(url_for('choose_playlists'))
+    auth_url = sp_oauth.get_authorize_url()
+    return render_template('index.html', auth_url=auth_url, message=logout_message)
     
 
 @app.route('/callback')
 def callback():
     sp_oauth = create_spotify_oauth()
+    session.clear()  # Clear any existing session data
+    
     code = request.args.get('code')
+    error = request.args.get('error')
+    
+    if error:
+        return redirect(url_for('index'))
+    
     token_info = sp_oauth.get_access_token(code)
+    if not token_info:
+        return redirect(url_for('index'))
+    
     session['token_info'] = token_info
     return redirect(url_for('choose_playlists'))
 
@@ -83,8 +102,34 @@ def logout():
     # Clear the session
     session.clear()
     
-    # Redirect to the index page with a logout success message
-    return redirect(url_for('index', logout='success'))
+    # Revoke the Spotify token
+    if 'token_info' in session:
+        token = session['token_info'].get('access_token')
+        requests.post('https://accounts.spotify.com/api/token/revoke',
+                      data={'token': token},
+                      auth=(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET))
+    
+    # Construct the Spotify logout URL
+    spotify_logout_url = 'https://www.spotify.com/logout/'
+    
+    # Prepare response
+    response = make_response(redirect(spotify_logout_url))
+    
+    # Clear all cookies
+    for cookie in request.cookies:
+        response.delete_cookie(cookie)
+    
+    # Set a cookie to indicate we're in the process of logging out
+    response.set_cookie('logging_out', 'true', max_age=5)
+    
+    return response
+
+
+@app.route('/post-logout')
+def post_logout():
+    response = make_response(redirect(url_for('index', logout='success')))
+    response.delete_cookie('logging_out')
+    return response
 
 
 @app.route('/choose-playlists')
@@ -92,8 +137,16 @@ def choose_playlists():
     if not session.get('token_info'):
         return redirect(url_for('index'))
     
+    sp_oauth = create_spotify_oauth()
+    token_info = session.get('token_info')
+    
+    # Check if token has expired
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+        session['token_info'] = token_info
+    
     try:
-        sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
+        sp = spotipy.Spotify(auth=token_info['access_token'])
         
         # Fetch all playlists
         all_playlists = []
@@ -112,7 +165,7 @@ def choose_playlists():
 
         return render_template('choose_playlists.html', playlists=all_playlists)
     except spotipy.exceptions.SpotifyException:
-        # Token might have expired
+        # Token might be invalid
         session.pop('token_info', None)
         return redirect(url_for('index'))
     

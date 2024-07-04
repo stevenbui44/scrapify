@@ -104,6 +104,27 @@
         }
     </style>
 </head>
+<script>
+    window.onload = function() {
+        // Clear all local storage
+        localStorage.clear();
+        
+        // Clear all session storage
+        sessionStorage.clear();
+        
+        // Clear all cookies except the 'logging_out' cookie
+        document.cookie.split(";").forEach(function(c) {
+            if (!c.trim().startsWith('logging_out=')) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            }
+        });
+        
+        // Force reload from server, not cache
+        if (performance.navigation.type == 2) {
+            location.reload(true);
+        }
+    }
+</script>
 <body>
     <div class="header">
         <a href="{{ url_for('index') }}" class="logo">Syncify</a>
