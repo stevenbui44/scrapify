@@ -64,9 +64,11 @@ def callback():
     return redirect(url_for('choose_playlists'))
 
 
-@app.route('/privacy')
+@app.route('/privacy-policy')
 def privacy_policy():
-    return render_template('privacy_policy.html')
+    # return render_template('privacy_policy.html')
+    is_logged_in = 'token_info' in session
+    return render_template('privacy_policy.html', is_logged_in=is_logged_in)
 
 
 @app.route('/about')

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Syncify - Privacy Policy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Figtree', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 120px;
+            padding-bottom: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 50px;
+            font-size: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000000;
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 40px;
+        }
+
+        .logo {
+            color: #ffffff;
+            font-size: 25px;
+            font-weight: bold;
+            text-decoration: none;
+            padding-left: 5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-button {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #282828;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 22px;
+            margin-top: 45px;
+            color: #1DB954;
+        }
+
+        .section-content {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size:18px;
+        }
+
+        .section-content a {
+            color: #1DB954;
+            text-decoration: none;
+        }
+
+        .section-content a:hover {
+            text-decoration: underline;
+        }
+
+        .section-content a:visited {
+            color: #1DB954;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('index') }}" class="logo">Syncify</a>
+        <div class="nav-buttons">
+            <a href="{{ url_for('privacy_policy') }}" class="nav-button"><b>Privacy Policy</b></a>
+            <a href="{{ url_for('about') }}" class="nav-button"><b>About</b></a>
+            {% if is_logged_in %}
+                <a href="{{ url_for('logout') }}" class="nav-button logout-button"><b>Logout</b></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content">
+        <h1>Privacy Policy</h1>
+
+        <div class="section">
+            <div class="section-title">Information We Collect</div>
+            <div class="section-content">
+                Syncify is a web-based application that allows users to combine their Spotify playlists into a single, sorted playlist. To use the Syncify application, users are required to log in to their Spotify account. By doing so, Syncify is able to access and retrieve information about the user's Spotify playlists, including the playlist names, song titles, artists, and the date/time each song was added to the playlist.
+                </br></br>
+                Syncify does not store or save any of this Spotify user data. The application only uses this information temporarily to create the combined, sorted playlist, and it is not retained or accessible after the user's Syncify session has ended.
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Your Rights</div>
+            <div class="section-content">
+                Using the Syncify application is entirely optional. Users have the choice whether or not to log in and connect their Spotify account. If a user chooses to use Syncify, they are granting the application temporary access to their Spotify playlist data for the purpose of creating the combined playlist.
+                </br></br>
+                Users can choose to revoke Syncify's access to their Spotify account at any time through their Spotify account settings.
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Accessing Your Information</div>
+            <div class="section-content">
+                Since Syncify does not store or save any user data, there is no way for users to access or view information that has been collected about them. All Spotify data accessed by Syncify is only used temporarily during the user's session and is not retained.
+                </br></br>
+                Users can view and manage their own Spotify data through their Spotify account.
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Data Security</div>
+            <div class="section-content">
+                Syncify uses secure OAuth 2.0 authentication to access users' Spotify accounts. All communication between the Syncify application and Spotify's servers is encrypted. Syncify does not store any login credentials or user data on its own servers or systems. The application is designed to minimize the amount of Spotify data it accesses and to immediately discard that data once it has been used to create the combined playlist.
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Resolving Concerns</div>
+            <div class="section-content">
+                If a user has a concern that Syncify is not adhering to this privacy policy, they can contact the creator at stevenbui44@gmail.com. Syncify takes user privacy very seriously and will investigate any reported issues promptly. If it is determined that the privacy policy has been violated, Syncify will work to correct the issue and provide an explanation to the affected user.
+                </br></br>
+                Users can also post their concerns on the Issues tab of the project's GitHub, found <a href="https://github.com/stevenbui44/syncify/issues">here</a>. All concerns will be addressed within 48 hours.
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Updates to this Policy</div>
+            <div class="section-content">
+                Syncify may update this privacy policy from time to time to reflect changes in the application, legal requirements, or best practices. Users will be notified of any material changes to the privacy policy by posting the updated policy on the Syncify website. Users are encouraged to review the privacy policy periodically to stay informed of Syncify's data practices.
+            </div>
+        </div>
+
+        <div class="section-content">
+            This privacy policy is effective as of 2024-07-04.
+        </div>
+    </div>
+
+    <div class="copyright">
+        © Syncify 2024
+    </div>
+</body>
+</html>
