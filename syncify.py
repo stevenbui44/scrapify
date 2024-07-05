@@ -13,6 +13,7 @@ import secrets
 from urllib.parse import quote
 from threading import Timer
 from spotipy.exceptions import SpotifyException
+import logging
 
 
 # Load environment variables
@@ -22,11 +23,14 @@ load_dotenv()
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
-SCOPE = 'playlist-read-private playlist-modify-public user-library-read'
+# SCOPE = 'playlist-read-private playlist-modify-public user-library-read'
+SCOPE = 'playlist-read-private playlist-modify-public user-library-read user-read-private'
 
 # Set up Flask
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # For session management
+
+logging.basicConfig(level=logging.INFO)
 
 # Set up SpotifyOAuth
 class NoCache(CacheHandler):
@@ -37,10 +41,12 @@ class NoCache(CacheHandler):
         pass
 
 def create_spotify_oauth():
+    redirect_uri = SPOTIPY_REDIRECT_URI
+    print(f"Redirect URI: {redirect_uri}")  # Add this line
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
-        redirect_uri=SPOTIPY_REDIRECT_URI,
+        redirect_uri=redirect_uri,
         scope=SCOPE,
         cache_handler=NoCache(),
         show_dialog=True
@@ -73,14 +79,31 @@ def callback():
     error = request.args.get('error')
     
     if error:
+        logging.error(f"Error during Spotify auth: {error}")
         return redirect(url_for('index'))
     
-    token_info = sp_oauth.get_access_token(code)
-    if not token_info:
+    try:
+        token_info = sp_oauth.get_access_token(code)
+        if not token_info:
+            logging.error("Failed to get access token")
+            return redirect(url_for('index'))
+        
+        session['token_info'] = token_info
+        logging.info(f"Successfully obtained token info: {token_info}")
+        
+        # Test the token by getting user info
+        sp = spotipy.Spotify(auth=token_info['access_token'])
+        try:
+            user_info = sp.current_user()
+            logging.info(f"User info: {user_info}")
+        except Exception as e:
+            logging.error(f"Error getting user info: {str(e)}")
+            # Instead of redirecting, let's try to continue
+        
+        return redirect(url_for('choose_playlists'))
+    except Exception as e:
+        logging.error(f"Exception during callback: {str(e)}")
         return redirect(url_for('index'))
-    
-    session['token_info'] = token_info
-    return redirect(url_for('choose_playlists'))
 
 
 @app.route('/privacy-policy')
@@ -135,17 +158,18 @@ def post_logout():
 @app.route('/choose-playlists')
 def choose_playlists():
     if not session.get('token_info'):
+        logging.error("No token info in session")
         return redirect(url_for('index'))
     
     sp_oauth = create_spotify_oauth()
     token_info = session.get('token_info')
     
-    # Check if token has expired
-    if sp_oauth.is_token_expired(token_info):
-        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
-        session['token_info'] = token_info
-    
     try:
+        if sp_oauth.is_token_expired(token_info):
+            logging.info("Token expired, refreshing...")
+            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+            session['token_info'] = token_info
+        
         sp = spotipy.Spotify(auth=token_info['access_token'])
         
         # Fetch all playlists
@@ -154,18 +178,23 @@ def choose_playlists():
         limit = 50  # Spotify API default limit
 
         while True:
-            playlists = sp.current_user_playlists(limit=limit, offset=offset)
-            all_playlists.extend(playlists['items'])
-            
-            if len(playlists['items']) < limit:
-                # We've reached the end of the playlist list
+            try:
+                playlists = sp.current_user_playlists(limit=limit, offset=offset)
+                all_playlists.extend(playlists['items'])
+                
+                if len(playlists['items']) < limit:
+                    break
+                
+                offset += limit
+            except Exception as e:
+                logging.error(f"Error fetching playlists: {str(e)}")
+                # Instead of raising, let's break the loop
                 break
-            
-            offset += limit
 
+        logging.info(f"Successfully fetched {len(all_playlists)} playlists")
         return render_template('choose_playlists.html', playlists=all_playlists)
-    except spotipy.exceptions.SpotifyException:
-        # Token might be invalid
+    except Exception as e:
+        logging.error(f"Exception in choose_playlists: {str(e)}")
         session.pop('token_info', None)
         return redirect(url_for('index'))
     
