@@ -45,7 +45,6 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            /* transition: background-color 0.3s ease; */
             box-shadow: 0 4px 12px rgba(29, 185, 84, 0.5);
             opacity: 0.5;
             pointer-events: none;
@@ -113,7 +112,6 @@
         }
 
         .logo {
-            /* color: #1DB954; */
             color: #ffffff;
             font-size: 25px;
             font-weight: bold;
@@ -139,7 +137,6 @@
         .playlist-container {
             max-width: 1000px;
             margin: 20px auto;
-            /* margin-bottom: 120px; */
         }
 
         .playlist-grid {
@@ -258,18 +255,11 @@
 
         document.addEventListener('DOMContentLoaded', (event) => {
             document.querySelector('.logout-button').addEventListener('click', function(e) {
-                // Clear local storage
                 localStorage.clear();
-                
-                // Clear session storage
                 sessionStorage.clear();
-                
-                // Clear cookies
                 document.cookie.split(";").forEach(function(c) { 
                     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
                 });
-                
-                // Clear Spotify-specific cookies
                 document.cookie.split(";").forEach(function(c) {
                     if (c.trim().startsWith('sp_')) {
                         document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/;domain=.spotify.com");

@@ -73,16 +73,15 @@
         }
 
         .logout-message {
-            background-color: rgba(67, 65, 65, 0.3); /* Faded, transparent grey */
-            color: rgba(212, 209, 209, 0.8); /* Dim, slightly transparent text */
+            background-color: rgba(67, 65, 65, 0.3);
+            color: rgba(212, 209, 209, 0.8);
             text-align: center;
             padding: 12px 24px;
             border-radius: 4px;
             display: inline-block;
             max-width: 80%;
-            /* border: 1px solid rgba(200, 200, 200, 0.3); */
-            font-weight: 400; /* Normal font weight */
-            backdrop-filter: blur(5px); /* Optional: adds a slight blur effect */
+            font-weight: 400;
+            backdrop-filter: blur(5px);
         }
 
         .nav-buttons {
@@ -106,20 +105,13 @@
 </head>
 <script>
     window.onload = function() {
-        // Clear all local storage
         localStorage.clear();
-        
-        // Clear all session storage
         sessionStorage.clear();
-        
-        // Clear all cookies except the 'logging_out' cookie
         document.cookie.split(";").forEach(function(c) {
             if (!c.trim().startsWith('logging_out=')) {
                 document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
             }
         });
-        
-        // Force reload from server, not cache
         if (performance.navigation.type == 2) {
             location.reload(true);
         }

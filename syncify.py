@@ -2,17 +2,11 @@ import os
 from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-# from flask import Flask, render_template, request, redirect, url_for, session, make_response, current_app
-from flask import *
+from flask import Flask, render_template, request, redirect, url_for, session, make_response
 from datetime import datetime
 import time
 import requests
-from urllib.parse import urlencode
 from spotipy.cache_handler import CacheHandler
-import secrets
-from urllib.parse import quote
-from threading import Timer
-from spotipy.exceptions import SpotifyException
 import logging
 
 
@@ -23,12 +17,11 @@ load_dotenv()
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
-# SCOPE = 'playlist-read-private playlist-modify-public user-library-read'
 SCOPE = 'playlist-read-private playlist-modify-public user-library-read user-read-private'
 
 # Set up Flask
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # For session management
+app.secret_key = os.urandom(24)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -42,7 +35,7 @@ class NoCache(CacheHandler):
 
 def create_spotify_oauth():
     redirect_uri = SPOTIPY_REDIRECT_URI
-    print(f"Redirect URI: {redirect_uri}")  # Add this line
+    # print(f"Redirect URI: {redirect_uri}")
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
@@ -73,7 +66,7 @@ def index():
 @app.route('/callback')
 def callback():
     sp_oauth = create_spotify_oauth()
-    session.clear()  # Clear any existing session data
+    session.clear()
     
     code = request.args.get('code')
     error = request.args.get('error')
@@ -91,14 +84,12 @@ def callback():
         session['token_info'] = token_info
         logging.info(f"Successfully obtained token info: {token_info}")
         
-        # Test the token by getting user info
         sp = spotipy.Spotify(auth=token_info['access_token'])
         try:
             user_info = sp.current_user()
             logging.info(f"User info: {user_info}")
         except Exception as e:
             logging.error(f"Error getting user info: {str(e)}")
-            # Instead of redirecting, let's try to continue
         
         return redirect(url_for('choose_playlists'))
     except Exception as e:
@@ -108,43 +99,29 @@ def callback():
 
 @app.route('/privacy-policy')
 def privacy_policy():
-    # return render_template('privacy_policy.html')
     is_logged_in = 'token_info' in session
     return render_template('privacy_policy.html', is_logged_in=is_logged_in)
 
 
 @app.route('/about')
 def about():
-    # return render_template('about.html')
     is_logged_in = 'token_info' in session
     return render_template('about.html', is_logged_in=is_logged_in)
 
 
 @app.route('/logout')
 def logout():
-    # Clear the session
     session.clear()
-    
-    # Revoke the Spotify token
     if 'token_info' in session:
         token = session['token_info'].get('access_token')
         requests.post('https://accounts.spotify.com/api/token/revoke',
                       data={'token': token},
                       auth=(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET))
-    
-    # Construct the Spotify logout URL
     spotify_logout_url = 'https://www.spotify.com/logout/'
-    
-    # Prepare response
     response = make_response(redirect(spotify_logout_url))
-    
-    # Clear all cookies
     for cookie in request.cookies:
         response.delete_cookie(cookie)
-    
-    # Set a cookie to indicate we're in the process of logging out
     response.set_cookie('logging_out', 'true', max_age=5)
-    
     return response
 
 
@@ -188,7 +165,6 @@ def choose_playlists():
                 offset += limit
             except Exception as e:
                 logging.error(f"Error fetching playlists: {str(e)}")
-                # Instead of raising, let's break the loop
                 break
 
         logging.info(f"Successfully fetched {len(all_playlists)} playlists")
@@ -224,11 +200,9 @@ def create_playlist():
         all_tracks.extend([(track['track']['id'], track['added_at'], track['track']['name'], playlist['name']) 
                            for track in tracks if track['track']])
 
-    # Sort tracks by added_at date
     sorted_tracks = sorted(all_tracks, key=lambda x: datetime.strptime(x[1], '%Y-%m-%dT%H:%M:%SZ'))
 
     if not include_duplicates:
-        # Remove duplicates if not including them
         unique_tracks = []
         seen = set()
         for track in sorted_tracks:
@@ -237,7 +211,6 @@ def create_playlist():
                 seen.add(track[0])
         sorted_tracks = unique_tracks
 
-    # Create the description
     if len(selected_playlist_names) == 1:
         description = f"Combined playlist from {selected_playlist_names[0]}, sorted by add date"
     elif len(selected_playlist_names) == 2:
@@ -251,16 +224,14 @@ def create_playlist():
                 description += f"{name}, "
         description += "sorted by add date"
 
-    # Truncate the description if it's too long (Spotify has a 300 character limit)
+    # Spotify has a 300 character limit
     if len(description) > 300:
         description = description[:297] + "..."
 
-    # Create a new playlist
     user_id = sp.me()['id']
     new_playlist = sp.user_playlist_create(user_id, "Combined Playlist", public=True, 
                                            description=description)
 
-    # Add tracks to the new playlist in batches of 100
     track_ids = [track[0] for track in sorted_tracks]
     for i in range(0, len(track_ids), 100):
         batch = track_ids[i:i+100]
@@ -268,7 +239,7 @@ def create_playlist():
             sp.playlist_add_items(new_playlist['id'], batch)
         except spotipy.exceptions.SpotifyException as e:
             print(f"Error adding tracks {i} to {i+100}: {str(e)}")
-        time.sleep(1)  # Add a small delay to avoid rate limiting
+        time.sleep(1)
 
     return render_template('playlist_created.html', playlist_name=new_playlist['name'], tracks=sorted_tracks)
 
